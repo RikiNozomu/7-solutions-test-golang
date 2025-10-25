@@ -2,13 +2,11 @@ version: "3.8"
 
 services:
   app:
+    container_name: 7-solutions-test-golang
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
     environment:
-      # override MONGODB_URI so the app connects to the mongo service by hostname
       - MONGODB_URI=mongodb://admin:password@mongo:27017
       - MONGODB_DBNAME=7-solotions
       - MONGODB_COLLECTION=user
@@ -16,10 +14,9 @@ services:
       - JWT_SECRET=test-jwt
       - JWT_TIME_EXPIRED_SECOND=3600
     ports:
-      - "${PORT:-8080}:8080"
+      - "${PORT:-8080}:${PORT:-8080}"
     depends_on:
       - mongo
-    restart: unless-stopped
 
   mongo:
     image: mongo:6.0
@@ -31,7 +28,6 @@ services:
       - mongo-data:/data/db
     ports:
       - "27017:27017"
-    restart: unless-stopped
 
 volumes:
   mongo-data:

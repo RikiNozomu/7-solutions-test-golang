@@ -14,22 +14,16 @@ import (
 	util "7-solutions-test-golang/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	_ "github.com/joho/godotenv/autoload"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		panic(err)
-	}
-
 	uri := os.Getenv("MONGODB_URI")
 	dbName := os.Getenv("MONGODB_DBNAME")
 	collectionName := os.Getenv("MONGODB_COLLECTION")
-	port := os.Getenv("PORT")
 	delay, err := strconv.Atoi(os.Getenv("DELAY_SECOND"))
 	if err != nil {
 		panic(err)
@@ -90,5 +84,9 @@ func main() {
 		}
 	}()
 
-	router.Run(":" + port)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	router.Run("0.0.0.0:" + port)
 }
