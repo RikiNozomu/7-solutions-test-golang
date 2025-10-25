@@ -17,7 +17,7 @@ type User struct {
 type UserCreate struct {
 	Name     string `json:"name" binding:"required,min=8,max=24"`
 	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password" binding:"required,min=8,max=24,nospace,nospecial,havelower,haveupper,havenumber"`
 }
 
 type UserUpdate struct {

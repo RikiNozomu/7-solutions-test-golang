@@ -52,6 +52,9 @@ func main() {
 	router.Use(middleware.ErrorResponseMiddleware())
 	router.Use(middleware.LogRequestMiddleware())
 
+	indexHandler := handler.NewIndexHandler()
+	indexHandler.IndexHandler(router)
+
 	userRepo := repo.NewMongoUserRepository(client.Database(dbName).Collection(collectionName))
 	userService := service.CreateUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
@@ -60,18 +63,6 @@ func main() {
 	authService := service.CreateAuthService(userService)
 	authHandler := handler.NewAuthHandler(authService)
 	authHandler.AuthRoutes(router)
-
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"status": "ok",
-		})
-	})
-
-	router.NoRoute(func(c *gin.Context) {
-		c.JSON(404, gin.H{
-			"error": "Not Found",
-		})
-	})
 
 	ticker := time.NewTicker(time.Duration(delay) * time.Second)
 	done := make(chan bool)

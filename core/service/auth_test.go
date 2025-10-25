@@ -2,14 +2,19 @@ package service
 
 import (
 	domain "7-solutions-test-golang/core/domains"
+	mock "7-solutions-test-golang/mocks"
 	util "7-solutions-test-golang/utils"
+	"os"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func TestLogin(t *testing.T) {
-	userRepo := NewMockUserRepository()
+	os.Setenv("JWT_SECRET", "jwt-secret")
+	os.Setenv("JWT_TIME_EXPIRED_SECOND", "3600")
+
+	userRepo := mock.NewMockUserRepository()
 	userService := CreateUserService(userRepo)
 	AuthService := CreateAuthService(userService)
 	email := "email@com.com"
@@ -33,25 +38,19 @@ func TestLogin(t *testing.T) {
 	}
 
 	// wrong password
-	user, err := AuthService.Login(domain.LoginPayload{Email: email, Password: "55555555"})
+	_, _, err = AuthService.Login(domain.LoginPayload{Email: email, Password: "55555555"})
 	if err != util.ErrorAuthenticated {
-		if user != nil {
-			t.Errorf("Login() = %s", user.Email)
-		}
 		t.Errorf("Login() = %s; want = %s", err.Error(), util.ErrorAuthenticated.Error())
 	}
 
 	// wrong email
-	user, err = AuthService.Login(domain.LoginPayload{Email: "ppp@po.co", Password: password})
+	_, _, err = AuthService.Login(domain.LoginPayload{Email: "ppp@po.co", Password: password})
 	if err != mongo.ErrNoDocuments {
-		if user != nil {
-			t.Errorf("Login() = %s", user.Email)
-		}
 		t.Errorf("Login() = %s; want = %s", err.Error(), mongo.ErrNoDocuments.Error())
 	}
 
 	// correct user
-	_, err = AuthService.Login(domain.LoginPayload{Email: email, Password: password})
+	_, _, err = AuthService.Login(domain.LoginPayload{Email: email, Password: password})
 	if err != nil {
 		t.Errorf("Login() = %s;", err.Error())
 	}
