@@ -2,6 +2,9 @@
 
 Project for applying to [7SOLUTIONS's Backend Golang Coding Test](https://github.com/7-solutions/backend-challenge)
 
+## Demo
+https://7-solutions-test-golang-production.up.railway.app
+
 ## 🛠 Project Setup & Run Instructions
 
 ### Prerequisites
