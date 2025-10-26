@@ -13,6 +13,11 @@ func NoSpaceValidator(fl validator.FieldLevel) bool {
 	return !match
 }
 
+func NoSpaceFirstAndLastValidator(fl validator.FieldLevel) bool {
+	match, _ := regexp.MatchString(`^\S(?:.*\S)?$`, fl.Field().String())
+	return match
+}
+
 func NoSpecialValidator(fl validator.FieldLevel) bool {
 	match, _ := regexp.MatchString(`[^a-zA-Z0-9]`, fl.Field().String())
 	return !match
@@ -36,6 +41,7 @@ func HaveNumberValidator(fl validator.FieldLevel) bool {
 func RegisterValidation() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("nospace", NoSpaceValidator)
+		v.RegisterValidation("nospacefirstlast", NoSpaceFirstAndLastValidator)
 		v.RegisterValidation("nospecial", NoSpecialValidator)
 		v.RegisterValidation("havelower", HaveLowerValidator)
 		v.RegisterValidation("haveupper", HaveUpperValidator)
@@ -64,6 +70,8 @@ func customErrorMessage(fe validator.FieldError) string {
 		return fmt.Sprintf("%s must be a valid email address.", fe.Field())
 	case "nospace":
 		return fmt.Sprintf("%s must not contain any spaces.", fe.Field())
+	case "nospacefirstlast":
+		return fmt.Sprintf("%s must not begin and end with a space.", fe.Field())
 	case "nospecial":
 		return fmt.Sprintf("%s must not contain special characters.", fe.Field())
 	case "havelower":

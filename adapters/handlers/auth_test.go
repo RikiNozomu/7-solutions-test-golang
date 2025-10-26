@@ -2,7 +2,7 @@ package handler
 
 import (
 	domain "7-solutions-test-golang/core/domains"
-	service "7-solutions-test-golang/core/service"
+	service "7-solutions-test-golang/core/services"
 	middleware "7-solutions-test-golang/middlewares"
 	mock "7-solutions-test-golang/mocks"
 	util "7-solutions-test-golang/utils"

@@ -15,13 +15,13 @@ type User struct {
 }
 
 type UserCreate struct {
-	Name     string `json:"name" binding:"required,min=8,max=24"`
+	Name     string `json:"name" binding:"required,min=8,max=24,nospacefirstlast"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=8,max=24,nospace,nospecial,havelower,haveupper,havenumber"`
 }
 
 type UserUpdate struct {
-	Name  string `json:"name" binding:"omitempty,min=8,max=24"`
+	Name  string `json:"name" binding:"omitempty,min=8,max=24,nospacefirstlast"`
 	Email string `json:"email" binding:"omitempty,email"`
 }
 

@@ -9,7 +9,7 @@ import (
 
 	handler "7-solutions-test-golang/adapters/handlers"
 	repo "7-solutions-test-golang/adapters/repositories/mongo"
-	service "7-solutions-test-golang/core/service"
+	service "7-solutions-test-golang/core/services"
 	middleware "7-solutions-test-golang/middlewares"
 	util "7-solutions-test-golang/utils"
 

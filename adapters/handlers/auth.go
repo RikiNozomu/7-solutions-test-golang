@@ -2,7 +2,7 @@ package handler
 
 import (
 	domain "7-solutions-test-golang/core/domains"
-	"7-solutions-test-golang/core/service"
+	service "7-solutions-test-golang/core/services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
