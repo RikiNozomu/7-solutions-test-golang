@@ -7,24 +7,24 @@ import (
 	mock "7-solutions-test-golang/mocks"
 	util "7-solutions-test-golang/utils"
 	"bytes"
-	"os"
-
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 )
 
+// Mock the datas.
 var name = "testpongpong"
 var email = "email@com.com"
 var password = "test1234ASAS"
-
 var badEmail = "email"
 var badPassword = "tes234"
 
+// Setup helper for initializing router and services
 func setUpServicesAndRoute() (*gin.Engine, *service.UserService) {
 	os.Setenv("JWT_SECRET", "jwt-secret")
 	os.Setenv("JWT_TIME_EXPIRED_SECOND", "3600")
@@ -46,17 +46,19 @@ func setUpServicesAndRoute() (*gin.Engine, *service.UserService) {
 	return router, userService
 }
 
+// Test GET /user and GET /user/:id
 func TestUserGetRoute(t *testing.T) {
 	var response map[string]any
 	router, userService := setUpServicesAndRoute()
-	// Create user before.
+
+	// Create user
 	user, _ := userService.Create(domain.UserCreate{
 		Name:     name,
 		Email:    email,
 		Password: password,
 	})
 
-	// Get All
+	// GET /user (list all)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/user", nil)
 	router.ServeHTTP(w, req)
@@ -65,13 +67,13 @@ func TestUserGetRoute(t *testing.T) {
 	datas := response["data"].([]any)
 	assert.Greater(t, len(datas), 0)
 
-	// Get not exist
+	// GET /user/:id (not found)
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/user/barbarbar", nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 404, w.Code)
 
-	// Get exist
+	// GET /user/:id (found)
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("GET", "/user/"+user.ID.Hex(), nil)
 	router.ServeHTTP(w, req)
@@ -81,10 +83,11 @@ func TestUserGetRoute(t *testing.T) {
 	assert.Equal(t, data["email"].(string), email)
 }
 
+// Test POST /user
 func TestUserCreateRoute(t *testing.T) {
 	router, _ := setUpServicesAndRoute()
 
-	// Incorrect Email payload
+	// Invalid email format
 	w := httptest.NewRecorder()
 	payload := map[string]string{"email": badEmail, "password": badPassword, "name": name}
 	jsonBytes, _ := json.Marshal(payload)
@@ -92,7 +95,7 @@ func TestUserCreateRoute(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 400, w.Code)
 
-	// Incorrect Email payload
+	// Invalid password format
 	w = httptest.NewRecorder()
 	payload = map[string]string{"email": email, "password": badPassword, "name": name}
 	jsonBytes, _ = json.Marshal(payload)
@@ -100,7 +103,7 @@ func TestUserCreateRoute(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 400, w.Code)
 
-	// Correct Account
+	// Valid payload
 	w = httptest.NewRecorder()
 	payload = map[string]string{"email": email, "password": password, "name": name}
 	jsonBytes, _ = json.Marshal(payload)
@@ -114,18 +117,20 @@ func TestUserCreateRoute(t *testing.T) {
 	assert.Greater(t, len(data["id"].(string)), 0)
 }
 
+// Test PUT /user/:id
 func TestUserUpdateRoute(t *testing.T) {
 	var response map[string]any
 	newName := name + "123456"
 	router, userService := setUpServicesAndRoute()
-	// Create user before.
+
+	// Create user
 	user, _ := userService.Create(domain.UserCreate{
 		Name:     name,
 		Email:    email,
 		Password: password,
 	})
 
-	// Update without Access token
+	// Update without token
 	w := httptest.NewRecorder()
 	payload := map[string]string{"name": newName}
 	jsonBytes, _ := json.Marshal(payload)
@@ -133,7 +138,7 @@ func TestUserUpdateRoute(t *testing.T) {
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 401, w.Code)
 
-	// Login to get access token
+	// Login to get token
 	w = httptest.NewRecorder()
 	payloadLogin := map[string]string{"email": email, "password": password}
 	jsonBytes, _ = json.Marshal(payloadLogin)
@@ -143,7 +148,7 @@ func TestUserUpdateRoute(t *testing.T) {
 	json.Unmarshal(w.Body.Bytes(), &response)
 	data := response["data"].(map[string]any)
 
-	// Update with Access Token
+	// Update with token
 	w = httptest.NewRecorder()
 	jsonBytes, _ = json.Marshal(payload)
 	req, _ = http.NewRequest("PUT", "/user/"+user.ID.Hex(), bytes.NewBuffer(jsonBytes))
@@ -155,23 +160,25 @@ func TestUserUpdateRoute(t *testing.T) {
 	assert.Equal(t, newName, data["name"].(string))
 }
 
+// Test DELETE /user/:id
 func TestUseDeleteRoute(t *testing.T) {
 	var response map[string]any
 	router, userService := setUpServicesAndRoute()
-	// Create user before.
+
+	// Create user
 	user, _ := userService.Create(domain.UserCreate{
 		Name:     name,
 		Email:    email,
 		Password: password,
 	})
 
-	// Delete without Access token
+	// Delete without token
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/user/"+user.ID.Hex(), nil)
 	router.ServeHTTP(w, req)
 	assert.Equal(t, 401, w.Code)
 
-	// Login to get access token
+	// Login to get token
 	w = httptest.NewRecorder()
 	payloadLogin := map[string]string{"email": email, "password": password}
 	jsonBytes, _ := json.Marshal(payloadLogin)
@@ -181,7 +188,7 @@ func TestUseDeleteRoute(t *testing.T) {
 	json.Unmarshal(w.Body.Bytes(), &response)
 	data := response["data"].(map[string]any)
 
-	// Delete with Access Token
+	// Delete with token
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest("DELETE", "/user/"+user.ID.Hex(), nil)
 	req.Header.Set("Authorization", "Bearer "+data["token"].(string))

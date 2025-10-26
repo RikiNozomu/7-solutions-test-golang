@@ -8,36 +8,43 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// NoSpaceValidator ensures the string contains no whitespace characters.
 func NoSpaceValidator(fl validator.FieldLevel) bool {
 	match, _ := regexp.MatchString(`\s`, fl.Field().String())
 	return !match
 }
 
+// NoSpaceFirstAndLastValidator ensures the string does not start or end with a space.
 func NoSpaceFirstAndLastValidator(fl validator.FieldLevel) bool {
 	match, _ := regexp.MatchString(`^\S(?:.*\S)?$`, fl.Field().String())
 	return match
 }
 
+// NoSpecialValidator ensures the string contains only alphanumeric characters.
 func NoSpecialValidator(fl validator.FieldLevel) bool {
 	match, _ := regexp.MatchString(`[^a-zA-Z0-9]`, fl.Field().String())
 	return !match
 }
 
+// HaveLowerValidator ensures the string contains at least one lowercase letter.
 func HaveLowerValidator(fl validator.FieldLevel) bool {
 	match, _ := regexp.MatchString(`[a-z]+`, fl.Field().String())
 	return match
 }
 
+// HaveUpperValidator ensures the string contains at least one uppercase letter.
 func HaveUpperValidator(fl validator.FieldLevel) bool {
 	match, _ := regexp.MatchString(`[A-Z]+`, fl.Field().String())
 	return match
 }
 
+// HaveNumberValidator ensures the string contains at least one numeric digit.
 func HaveNumberValidator(fl validator.FieldLevel) bool {
 	match, _ := regexp.MatchString(`[0-9]+`, fl.Field().String())
 	return match
 }
 
+// RegisterValidation binds all custom validators to Gin's validation engine.
 func RegisterValidation() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("nospace", NoSpaceValidator)
@@ -49,6 +56,7 @@ func RegisterValidation() {
 	}
 }
 
+// GetValidateErrors converts validation errors into a slice of user-friendly messages.
 func GetValidateErrors(err error) []string {
 	errs := err.(validator.ValidationErrors)
 	out := make([]string, len(errs))
@@ -58,6 +66,7 @@ func GetValidateErrors(err error) []string {
 	return out
 }
 
+// customErrorMessage maps each validation tag to a readable error message.
 func customErrorMessage(fe validator.FieldError) string {
 	switch fe.Tag() {
 	case "required":
@@ -83,5 +92,4 @@ func customErrorMessage(fe validator.FieldError) string {
 	default:
 		return fmt.Sprintf("%s is not valid.", fe.Field())
 	}
-
 }

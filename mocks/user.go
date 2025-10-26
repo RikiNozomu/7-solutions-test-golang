@@ -8,14 +8,17 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
+// MockUserRepository is an in-memory implementation of domain.UserRepository.
 type MockUserRepository struct {
 	users []domain.User
 }
 
+// NewMockUserRepository initializes a new empty mock repository.
 func NewMockUserRepository() domain.UserRepository {
 	return &MockUserRepository{users: []domain.User{}}
 }
 
+// findUserByEmail searches for a user by email in the mock slice.
 func findUserByEmail(email string, users []domain.User) (*domain.User, int) {
 	for index, user := range users {
 		if user.Email == email {
@@ -25,6 +28,7 @@ func findUserByEmail(email string, users []domain.User) (*domain.User, int) {
 	return nil, -1
 }
 
+// findUserByID searches for a user by id in the mock slice.
 func findUserByID(id string, users []domain.User) (*domain.User, int) {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
@@ -39,7 +43,7 @@ func findUserByID(id string, users []domain.User) (*domain.User, int) {
 	return nil, -1
 }
 
-// Create implements domain.UserRepository.
+// Create adds a new user to the mock repository.
 func (m *MockUserRepository) Create(user domain.User) error {
 	if _, index := findUserByEmail(user.Email, m.users); index > -1 {
 		return util.ErrorDuplicateKey
@@ -48,7 +52,7 @@ func (m *MockUserRepository) Create(user domain.User) error {
 	return nil
 }
 
-// GetByEmail implements domain.UserRepository.
+// GetOne retrieves a user by key ("_id" or "email").
 func (m *MockUserRepository) GetOne(key string, value any) (*domain.User, error) {
 	str, ok := value.(string)
 	if !ok {
@@ -72,7 +76,7 @@ func (m *MockUserRepository) GetOne(key string, value any) (*domain.User, error)
 	}
 }
 
-// GetAll implements domain.UserRepository.
+// GetAll returns all users in the mock repository.
 func (m *MockUserRepository) GetAll() ([]domain.User, error) {
 	if len(m.users) <= 0 {
 		return []domain.User{}, nil
@@ -80,12 +84,12 @@ func (m *MockUserRepository) GetAll() ([]domain.User, error) {
 	return m.users, nil
 }
 
-// GetCount implements domain.UserRepository.
+// GetCount returns the number of users in the mock repository.
 func (m *MockUserRepository) GetCount() (int64, error) {
 	return int64(len(m.users)), nil
 }
 
-// Update implements domain.UserRepository.
+// Update modifies an existing user by ID.
 func (m *MockUserRepository) Update(user domain.User) error {
 	data, index := findUserByID(user.ID.Hex(), m.users)
 	if index == -1 {
@@ -103,7 +107,7 @@ func (m *MockUserRepository) Update(user domain.User) error {
 	return nil
 }
 
-// Delete implements domain.UserRepository.
+// Delete removes a user by ID from the mock repository.
 func (m *MockUserRepository) Delete(id string) error {
 	_, index := findUserByID(id, m.users)
 	if index == -1 {
