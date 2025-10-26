@@ -33,6 +33,17 @@ go test ./adapters/handlers ./core/services
 docker compose up -d
 ```
 
+## 🎚️ Environment Variables
+```bash
+MONGODB_URI=mongodb://admin:password@test-mongo:27017 // Full Mongo URI to connect DB 
+MONGODB_DBNAME=7-solotions // DB name
+MONGODB_COLLECTION=user // User Collaection name
+DELAY_SECOND=10 // Deley of log what show amount of user
+PORT=8080 // Port of Application
+JWT_SECRET=test-jwt // secret of JWT
+JWT_TIME_EXPIRED_SECOND=3600 // amount of expired second after login
+```
+
 ## 🔐 JWT Token Usage Guide
 
 This project uses JWT for securing `PUT /user/:id` and `DELETE /user/:id`.
