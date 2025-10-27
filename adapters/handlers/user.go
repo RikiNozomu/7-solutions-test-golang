@@ -133,6 +133,7 @@ func (h *UserHandler) Delete(c *gin.Context) {
 // UserRoutes registers all user-related routes under /user
 func (h *UserHandler) UserRoutes(router *gin.Engine) {
 	userGroup := router.Group("/user")
+	userGroup.Use(middleware.RateLimiter())
 	{
 		userGroup.POST("", h.Create) // Public: create user
 		userGroup.GET("/:id", h.Get) // Public: get user by ID

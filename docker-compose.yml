@@ -11,6 +11,8 @@ services:
       - DELAY_SECOND=10
       - JWT_SECRET=test-jwt
       - JWT_TIME_EXPIRED_SECOND=3600
+      - REQUEST_DELAY_IN_SECOND=10
+      - MAXIMUM_BRUST=100
     ports:
       - "${PORT:-8080}:${PORT:-8080}"
     depends_on:
